@@ -7,16 +7,16 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-  "build:ts": "tsc",
-  "build:sass": "sass frontend/styles:public/css",
-  "build": "npm run build:ts && npm run build:sass",
-  "watch:sass": "sass --watch frontend/styles:public/css",
-  "watch:ts": "tsc --watch"
-}
-,
+    "build:ts": "tsc",
+    "build:sass": "sass frontend/styles:public/css",
+    "build": "npm run build:ts && npm run build:sass",
+    "watch:sass": "sass --watch frontend/styles:public/css",
+    "watch:ts": "tsc --watch"
+  },
   "dependencies": {
     "bootstrap": "^5.3.8",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
   },
   "devDependencies": {
     "sass": "^1.93.2",
