@@ -1,0 +1,11 @@
+$primary-color: #4a90e2;
+
+body {
+  font-family: sans-serif;
+  background-color: #f7f7f7;
+
+  h1 {
+    color: $primary-color;
+    text-align: center;
+  }
+}
