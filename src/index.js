@@ -7,6 +7,7 @@ const port = 3000
 
 const rootPath = path.join(__dirname, "..");
 const shaderDir = path.join(__dirname, "..", "public", "shaders");
+const modelDir = path.join(__dirname, "..", "public", "models");
 
 app.use('/css', express.static(rootPath + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(rootPath + '/node_modules/bootstrap/dist/js'));
@@ -25,6 +26,19 @@ app.get('/api/shaderlist', (req, res) => {
         }
         // filter only .vert and .frag files
         const shaderFiles = files.filter(file => file.endsWith('.vert') || file.endsWith('.frag'));
+        res.json(shaderFiles);
+    });
+});
+
+app.get('/api/modellist', (req, res) => {
+    // list all files in shaders directory
+    fs.readdir(modelDir, (err, files) => {
+        if (err) {
+            res.status(500).send('Error reading models directory');
+            return;
+        }
+        // filter only .vert and .frag files
+        const shaderFiles = files.filter(file => file.endsWith('.obj') || file.endsWith('.mtl'));
         res.json(shaderFiles);
     });
 });

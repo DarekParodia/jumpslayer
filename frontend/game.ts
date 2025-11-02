@@ -1,12 +1,19 @@
 // Config for the game
 import config from './shooter/config.js';
+import Mesh from './shooter/mesh.js';
+import Renderer from './shooter/renderer.js';
 import ShaderProcessor from './shooter/shaders.js';
 
 document.addEventListener('DOMContentLoaded', main);
 
 async function main() {
   const {canvas, gl} = await setupCanvas();
+
   const shaderProcessor = new ShaderProcessor(gl);
+  const renderer = new Renderer(gl, shaderProcessor);
+  const mesh = new Mesh('cube', '/models/cube.obj');
+  await mesh.load();
+
   await shaderProcessor.loadShaders();
 }
 
