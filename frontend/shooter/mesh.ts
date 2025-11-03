@@ -79,7 +79,7 @@ class ObjMesh {
       }
     }
 
-    console.log('OBJ Mesh parsed.', this.groups);
+    // console.log('OBJ Mesh parsed.', this.groups);
   }
 
   async toGLBuffer(): Promise<glBuffer> {
@@ -91,6 +91,8 @@ class ObjMesh {
     const indices: number[] = [];
 
     let indexOffset = 0;
+
+    // debugger;
 
     for (const group of this.groups) {
       for (const face of group.f) {
@@ -106,15 +108,26 @@ class ObjMesh {
             const vnIdx = vertex.z - 1;
 
             const position = group.v[vIdx];
+
+            if (!position) {
+              continue;
+            }
+
             positions.push(position.x, position.y, position.z);
 
             if (vnIdx >= 0) {
               const normal = group.vn[vnIdx];
+              if (!normal) {
+                continue;
+              }
               normals.push(normal.x, normal.y, normal.z);
             }
 
             if (vtIdx >= 0) {
               const texcoord = group.vt[vtIdx];
+              if (!texcoord) {
+                continue;
+              }
               texcoords.push(texcoord.u, texcoord.v);
             }
 
@@ -194,7 +207,7 @@ class Mesh {
     this.indexCount = glBuffer.indices.length;
 
 
-    console.log(`Mesh ${this.id} loaded from ${this.path}`);
+    // console.log(`Mesh ${this.id} loaded from ${this.path}`);
   }
 
   async draw(program: WebGLProgram) {
@@ -246,13 +259,13 @@ class Mesh {
 
     // diagnostic logs for attribute/uniform locations and buffer sizes
     // (helps identify why nothing appears)
-    console.log(`Mesh.draw() indexCount=${this.indexCount}`);
+    // console.log(`Mesh.draw() indexCount=${this.indexCount}`);
     if (this.positionBuffer) {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
       const size = gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE);
-      console.log('positionBuffer byteLength=', size);
+      // console.log('positionBuffer byteLength=', size);
     } else {
-      console.log('positionBuffer=none');
+      // console.log('positionBuffer=none');
     }
     // bind attributes only if they are active in the shader program
     if (locPos !== -1 && this.positionBuffer) {
@@ -295,7 +308,7 @@ class Mesh {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
 
-    console.log('Drawing mesh with MVP matrix:', mvp.elements);
+    // console.log('Drawing mesh with MVP matrix:', mvp.elements);
   }
 }
 

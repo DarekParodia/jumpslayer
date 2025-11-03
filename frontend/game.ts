@@ -15,9 +15,25 @@ async function main() {
   console.log('Shader programs: ', shaderProcessor.shaderPrograms);
 
 
-  const mesh = new Mesh('cube', '/models/cube.obj', gl);
+  const mesh = new Mesh('cube', '/models/test.obj', gl);
   await mesh.load();
   await mesh.draw(shaderProcessor.shaderPrograms['basic']);
+
+  const render = async () => {
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0.1, 0.1, 0.1, 0.7);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+
+    await mesh.draw(shaderProcessor.shaderPrograms['basic']);
+    mesh.rot.y += 0.01;
+    mesh.rot.x += 0.005;
+    mesh.rot.z += 0.002;
+
+    requestAnimationFrame(render);
+  };
+
+  requestAnimationFrame(render);
 }
 
 async function setupCanvas() {
@@ -26,6 +42,12 @@ async function setupCanvas() {
   if (!canvas) {
     throw new Error(`Canvas element with ID '${config.CANVAS_ID}' not found.`);
   }
+
+  // add resize listener
+  window.addEventListener('resize', async () => {
+    // console.log(canvas.width, canvas.height);
+    const resized = await resizeCanvasToDisplaySize(canvas);
+  });
 
   const gl = canvas.getContext('webgl');
 
@@ -52,4 +74,18 @@ async function setupCanvas() {
   console.log('WebGL context initialized successfully.');
 
   return {canvas, gl};
+}
+
+async function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement):
+    Promise<boolean> {
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
+
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    return true;  // size changed
+  }
+  return false;  // no change
 }
