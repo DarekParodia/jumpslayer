@@ -11,10 +11,13 @@ async function main() {
 
   const shaderProcessor = new ShaderProcessor(gl);
   const renderer = new Renderer(gl, shaderProcessor);
-  const mesh = new Mesh('cube', '/models/cube.obj');
-  await mesh.load();
-
   await shaderProcessor.loadShaders();
+  console.log('Shader programs: ', shaderProcessor.shaderPrograms);
+
+
+  const mesh = new Mesh('cube', '/models/cube.obj', gl);
+  await mesh.load();
+  await mesh.draw(shaderProcessor.shaderPrograms['basic']);
 }
 
 async function setupCanvas() {
@@ -31,7 +34,7 @@ async function setupCanvas() {
         'Unable to initialize WebGL. Your browser or machine may not support it.');
   }
 
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.1, 0.1, 0.1, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   console.log('WebGL context initialized successfully.');

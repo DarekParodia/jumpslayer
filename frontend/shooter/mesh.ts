@@ -14,6 +14,13 @@ interface MeshGroup {
   f: MeshFace[];
 }
 
+interface glBuffer {
+  positions: Float32Array;
+  normals: Float32Array;
+  texcoords: Float32Array;
+  indices: Uint16Array;
+}
+
 class ObjMesh {
   groups: MeshGroup[] = [];
 
@@ -74,6 +81,49 @@ class ObjMesh {
 
     console.log('OBJ Mesh parsed.', this.groups);
   }
+
+  async toGLBuffer(): Promise<glBuffer> {
+    // Convert the parsed OBJ data into WebGL buffers
+    // This is a simplified example; real implementation would be more complex
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const texcoords: number[] = [];
+    const indices: number[] = [];
+
+    let indexOffset = 0;
+
+    for (const group of this.groups) {
+      for (const face of group.f) {
+        for (const vertex of face.f) {
+          const vIdx = vertex.x - 1;  // OBJ indices are 1-based
+          const vtIdx = vertex.y - 1;
+          const vnIdx = vertex.z - 1;
+
+          const position = group.v[vIdx];
+          positions.push(position.x, position.y, position.z);
+
+          if (vnIdx >= 0) {
+            const normal = group.vn[vnIdx];
+            normals.push(normal.x, normal.y, normal.z);
+          }
+
+          if (vtIdx >= 0) {
+            const texcoord = group.vt[vtIdx];
+            texcoords.push(texcoord.u, texcoord.v);
+          }
+
+          indices.push(indexOffset++);
+        }
+      }
+    }
+
+    return {
+      positions: new Float32Array(positions),
+      normals: new Float32Array(normals),
+      texcoords: new Float32Array(texcoords),
+      indices: new Uint16Array(indices),
+    };
+  }
 }
 
 class Mesh {
@@ -81,26 +131,93 @@ class Mesh {
   path: string;
   objMesh: ObjMesh|null = null;
 
-  constructor(id: string, path: string) {
+  // gl buffers
+  gl: WebGLRenderingContext;
+  positionBuffer: WebGLBuffer|null = null;
+  normalBuffer: WebGLBuffer|null = null;
+  texcoordBuffer: WebGLBuffer|null = null;
+  indexBuffer: WebGLBuffer|null = null;
+  indexCount: number = 0;
+
+  constructor(id: string, path: string, gl: WebGLRenderingContext) {
     this.id = id;
     this.path = path;
+    this.gl = gl;
   }
 
-  load() {
+  async load() {
     // fetch the OBJ file and parse it
-    return fetch(this.path)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`Failed to load mesh from ${this.path}`);
-          }
-          return response.text();
-        })
-        .then(data => {
-          this.objMesh = new ObjMesh(data);
-        })
-        .catch(error => {
-          console.error('Error loading mesh:', error);
-        });
+    let response = await fetch(this.path);
+    if (!response.ok) {
+      throw new Error(
+          `Failed to load mesh from ${this.path}: ${response.statusText}`);
+    }
+    let objData = await response.text();
+    this.objMesh = new ObjMesh(objData);
+
+    // load to gpu
+    let glBuffer = await this.objMesh.toGLBuffer();
+
+    // positions
+    this.positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+    this.gl.bufferData(
+        this.gl.ARRAY_BUFFER, glBuffer.positions, this.gl.STATIC_DRAW);
+
+    // normals
+    this.normalBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.normalBuffer);
+    this.gl.bufferData(
+        this.gl.ARRAY_BUFFER, glBuffer.normals, this.gl.STATIC_DRAW);
+
+    // texcoords
+    this.texcoordBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texcoordBuffer);
+    this.gl.bufferData(
+        this.gl.ARRAY_BUFFER, glBuffer.texcoords, this.gl.STATIC_DRAW);
+
+    // indices
+    this.indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.bufferData(
+        this.gl.ELEMENT_ARRAY_BUFFER, glBuffer.indices, this.gl.STATIC_DRAW);
+
+    this.indexCount = glBuffer.indices.length;
+
+
+    console.log(`Mesh ${this.id} loaded from ${this.path}`);
+  }
+
+  async draw(program: WebGLProgram) {
+    const gl = this.gl;
+
+    gl.useProgram(program);
+
+    // positions
+    const posLoc = gl.getAttribLocation(program, 'aPosition');
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    // normals
+    const normalLoc = gl.getAttribLocation(program, 'aNormal');
+    if (normalLoc >= 0 && this.normalBuffer) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+      gl.enableVertexAttribArray(normalLoc);
+      gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    }
+
+    // texcoords
+    const texLoc = gl.getAttribLocation(program, 'aTexcoord');
+    if (texLoc >= 0 && this.texcoordBuffer) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
+      gl.enableVertexAttribArray(texLoc);
+      gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, 0, 0);
+    }
+
+    // indices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
   }
 }
 
