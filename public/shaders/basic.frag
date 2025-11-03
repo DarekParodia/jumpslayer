@@ -1,5 +1,11 @@
-precision mediump float;
+#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec3 vNormal;
+varying vec2 vUv;
 
 void main() {
-    gl_FragColor = vec4(1.0, 0.7, 0.2, 1.0); // solid orange
+    vec2 clampedUv = clamp(vUv, 0., 1.);
+    gl_FragColor = vec4(clampedUv, 1., 1.);
 }

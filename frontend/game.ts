@@ -34,8 +34,20 @@ async function setupCanvas() {
         'Unable to initialize WebGL. Your browser or machine may not support it.');
   }
 
-  gl.clearColor(0.1, 0.1, 0.1, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // Ensure the canvas has correct drawing buffer size for high-DPI displays
+  const dpr = window.devicePixelRatio || 1;
+  const displayWidth = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+  const displayHeight = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+  }
+
+  // Set viewport and clear
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0.1, 0.1, 0.1, 0.7);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
 
   console.log('WebGL context initialized successfully.');
 
