@@ -18,9 +18,61 @@ app.use('/css', express.static(rootPath + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(rootPath + '/node_modules/bootstrap/dist/js'));
 app.use('/', express.static(rootPath + '/public'));
 
-// server
+// routing
 app.get("/", (req, res) => {
-    res.render("index", { title: "Home Page", message: "Hello from Pug!" });
+    res.render("index", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/statistics", (req, res) => {
+    res.render("statistics", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/chat", (req, res) => {
+    res.render("chat", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/profile", (req, res) => {
+    res.render("profile", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/login", (req, res) => {
+    res.render("login", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/logout", (req, res) => {
+    res.render("logout", {
+        user: {
+            loggedIn: false,
+        }
+    });
+});
+
+app.get("/signup", (req, res) => {
+    res.render("signup", {
+        user: {
+            loggedIn: false,
+        }
+    });
 });
 
 // api

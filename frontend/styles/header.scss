@@ -1,0 +1,28 @@
+@use 'colors.scss' as *;
+@use "sass:color";
+
+header a {
+  background-color: $primary-color;
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+
+  &:hover {
+    background-color: color.scale($primary-color, $lightness: -17%);
+    transition: all 0.3s ease;
+  }
+}
+
+header {
+  background-color: $primary-color;
+  color: $secondary-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem;
+  flex-direction: row;
+}

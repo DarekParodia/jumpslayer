@@ -1,2 +1,15 @@
+mixin button($text, $link)
+  a.button(href=$link)= $text
+
 header 
-  h1= "wada"
+  nav
+    +button('Home', '/')
+    +button('Statistics', '/statistics')
+    +button('Chat', '/chat')
+  nav
+    if user.loggedIn
+      +button('Profile', '/profile')
+      +button('Logout', '/logout')
+    else
+      +button('Login', '/login')
+      +button('Sign Up', '/signup')

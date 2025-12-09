@@ -1,11 +1,13 @@
-$primary-color: #4a90e2;
+@use 'colors.scss' as *;
 
 body {
   font-family: sans-serif;
   background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
 
   h1 {
-    color: $primary-color;
+    color: $secondary-color;
     text-align: center;
   }
 
