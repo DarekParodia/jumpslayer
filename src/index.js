@@ -1,4 +1,5 @@
 const express = require('express')
+const session = require('./session')
 const path = require('path')
 const fs = require('fs');
 
@@ -9,12 +10,18 @@ const rootPath = path.join(__dirname, "..");
 const shaderDir = path.join(__dirname, "..", "public", "shaders");
 const modelDir = path.join(__dirname, "..", "public", "models");
 
+app.set("view engine", "pug");
+app.set("views", path.join(rootPath, "views"));
+
+app.use(session.default.middleware);
 app.use('/css', express.static(rootPath + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(rootPath + '/node_modules/bootstrap/dist/js'));
 app.use('/', express.static(rootPath + '/public'));
 
 // server
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get("/", (req, res) => {
+    res.render("index", { title: "Home Page", message: "Hello from Pug!" });
+});
 
 // api
 app.get('/api/shaderlist', (req, res) => {
