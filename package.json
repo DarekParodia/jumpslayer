@@ -14,7 +14,9 @@
     "watch:ts": "tsc --watch"
   },
   "dependencies": {
+    "body-parser": "^2.2.1",
     "bootstrap": "^5.3.8",
+    "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "nodemon": "^3.1.10",

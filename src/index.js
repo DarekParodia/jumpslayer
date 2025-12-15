@@ -1,5 +1,7 @@
 const express = require('express')
 const session = require('./session')
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const path = require('path')
 const fs = require('fs');
 
@@ -13,6 +15,9 @@ const modelDir = path.join(__dirname, "..", "public", "models");
 app.set("view engine", "pug");
 app.set("views", path.join(rootPath, "views"));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(session.default.middleware);
 app.use('/css', express.static(rootPath + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(rootPath + '/node_modules/bootstrap/dist/js'));
