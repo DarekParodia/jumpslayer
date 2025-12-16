@@ -7,6 +7,10 @@ class Client {
         Clients.set(this.id, this);
         console.log("New Client Connected with session: ", this.id);
     }
+
+    async setCookie(res, maxAge = null) {
+        res.cookie(SessionName, this.id, { httpOnly: true, maxAge: maxAge ? maxAge : undefined }); // maxAge in milliseconds
+    }
 }
 
 function middleware(req, res, next) {
@@ -17,13 +21,12 @@ function middleware(req, res, next) {
             // console.log("Existing client with session ID:", sessionID);
         } else {
             req.client = new Client();
-            res.cookie(SessionName, req.client.id, { httpOnly: true });
-            // console.log("New client created for invalid session ID:", sessionID);
+            req.client.setCookie(res);
         }
     } else {
         // generate a new session ID
         req.client = new Client();
-        res.cookie(SessionName, req.client.id, { httpOnly: true });
+        req.client.setCookie(res);
     }
 
     next()

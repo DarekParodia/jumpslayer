@@ -64,9 +64,38 @@ app.get("/signup", (req, res) => {
 });
 
 // routing POST
-app.post("/login", (req, res) => {
-    // process login
-    res.redirect("/");
+app.post("/login", async (req, res) => {
+    const { username, password, remember } = req.body;
+    let valid = true;
+
+    if (!username || !password) {
+        valid = false;
+    }
+    if (valid) {
+        await database.validateUser(username, password).then(isValid => {
+            if (isValid) {
+                console.log("Successful login for user:", username);
+
+                session.Clients.get(req.client.id).loggedIn = true;
+                session.Clients.get(req.client.id).username = username;
+
+                if (remember) {
+                    req.client.setCookie(res, 365 * 24 * 60 * 60 * 1000); // 365 days
+                }
+
+                res.redirect("/");
+            } else {
+                console.log("Invalid login attempt for user:", username);
+                res.redirect("/login?error=invalid_input");
+            }
+        }).catch(err => {
+            console.log("Error during login for user:", username, err);
+            res.redirect("/login?error=invalid_input");
+        });
+    } else {
+        console.log("Invalid login attempt");
+        res.redirect("/login?error=invalid_input");
+    }
 });
 
 app.post("/signup", (req, res) => {
@@ -150,6 +179,7 @@ function render(req, res, view, customData = {}) {
     res.render(view, {
         user: {
             loggedIn: req.client.loggedIn,
+            username: req.client.username
         },
         ...customData
     });

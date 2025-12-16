@@ -8,7 +8,7 @@ header
     +button('Chat', '/chat')
   nav
     if user.loggedIn
-      +button('Profile', '/profile')
+      +button(user.username, '/profile')
       +button('Logout', '/logout')
     else
       +button('Login', '/login')

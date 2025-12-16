@@ -7,3 +7,7 @@ html
     include includes/header.pug
     h1= message
     p This is a simple Express + Pug example.
+    if user.loggedIn
+      p Welcome back, #{user.username}!
+    else
+      p Please log in or sign up to continue.
