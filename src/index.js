@@ -1,5 +1,6 @@
 const express = require('express')
 const session = require('./session')
+const database = require('./database')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const path = require('path')
@@ -26,51 +27,29 @@ app.use('/', express.static(rootPath + '/public'));
 
 // routing GET
 app.get("/", (req, res) => {
-    res.render("index", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    render(req, res, "index");
 });
 
 app.get("/statistics", (req, res) => {
-    res.render("statistics", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    render(req, res, "statistics");
 });
 
 app.get("/chat", (req, res) => {
-    res.render("chat", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    render(req, res, "chat");
 });
 
 app.get("/profile", (req, res) => {
-    res.render("profile", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    render(req, res, "profile");
 });
 
 app.get("/login", (req, res) => {
-    res.render("login", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    render(req, res, "login");
 });
 
 app.get("/logout", (req, res) => {
-    res.render("logout", {
-        user: {
-            loggedIn: false,
-        }
-    });
+    session.cleanupClient(req.client.id);
+    res.clearCookie(session.SessionName);
+    res.redirect("/");
 });
 
 app.get("/signup", (req, res) => {
@@ -81,12 +60,7 @@ app.get("/signup", (req, res) => {
         errorMessage = 'Invalid input. Make sure username and password are 3-20 characters and passwords match.';
     }
 
-    res.render("signup", {
-        user: {
-            loggedIn: false,
-        },
-        error: errorMessage,
-    });
+    render(req, res, "signup", { errorMessage: errorMessage });
 });
 
 // routing POST
@@ -117,11 +91,17 @@ app.post("/signup", (req, res) => {
     }
 
     if (valid) {
-        // TODO: Add user to database
-        console.log("New user signup:", username);
-        console.log("Password:", password);
-        console.log("Confirm Password:", confirmPassword);
-        res.redirect("/");
+        database.signupUser(username, password).then(() => {
+            console.log("Successful signup for user:", username);
+
+            session.Clients.get(req.client.id).loggedIn = true;
+            session.Clients.get(req.client.id).username = username;
+
+            res.redirect("/");
+        }).catch(err => {
+            console.log("Error during signup for user:", username, err);
+            res.redirect("/signup?error=invalid_input");
+        });
     } else {
         console.log("Invalid signup attempt");
         res.redirect("/signup?error=invalid_input");
@@ -155,4 +135,22 @@ app.get('/api/modellist', (req, res) => {
     });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+
+database.connect('mongodb://localhost:27017', 'jumpslayer').finally(() => {
+    app.listen(port, async () => {
+        console.log(`Example app listening on port ${port}!`)
+        console.log((await database.getUserCollection()).length, "users in database");
+    })
+}).catch(err => {
+    console.error("Failed to connect to database on startup:", err);
+});
+
+function render(req, res, view, customData = {}) {
+    res.render(view, {
+        user: {
+            loggedIn: req.client.loggedIn,
+        },
+        ...customData
+    });
+}

@@ -1,0 +1,18 @@
+{
+  "watch": [
+    "frontend",
+    "src"
+  ],
+  "ext": "js,ts,jsx,tsx,json,scss,css,pug",
+  "ignore": [
+    "public/*",
+    "**/node_modules/**",
+    "**/*.map",
+    "bun.lock",
+    "dist/*",
+    "build/*"
+  ],
+  "delay": "250ms",
+  "verbose": true,
+  "exec": "bun run build && bun .\n"
+}
