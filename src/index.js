@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const fs = require('fs');
+const { log } = require('console')
 
 const app = express()
 const port = 3000
@@ -18,12 +19,12 @@ app.set("views", path.join(rootPath, "views"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(session.default.middleware);
+app.use(session.middleware);
 app.use('/css', express.static(rootPath + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(rootPath + '/node_modules/bootstrap/dist/js'));
 app.use('/', express.static(rootPath + '/public'));
 
-// routing
+// routing GET
 app.get("/", (req, res) => {
     res.render("index", {
         user: {
@@ -73,11 +74,58 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
+    // map known error codes to friendly messages
+    const err = req.query.error;
+    let errorMessage = null;
+    if (err === 'invalid_input') {
+        errorMessage = 'Invalid input. Make sure username and password are 3-20 characters and passwords match.';
+    }
+
     res.render("signup", {
         user: {
             loggedIn: false,
-        }
+        },
+        error: errorMessage,
     });
+});
+
+// routing POST
+app.post("/login", (req, res) => {
+    // process login
+    res.redirect("/");
+});
+
+app.post("/signup", (req, res) => {
+    // process signup
+    const { username, password, confirmPassword } = req.body;
+    let valid = true;
+
+    if (!username || !password || !confirmPassword) {
+        valid = false;
+    }
+
+    if (password !== confirmPassword) {
+        valid = false;
+    }
+
+    if (password.length < 3 || username.length < 3) {
+        valid = false;
+    }
+
+    if (password.length > 50 || username.length > 50) {
+        valid = false;
+    }
+
+    if (valid) {
+        // TODO: Add user to database
+        console.log("New user signup:", username);
+        console.log("Password:", password);
+        console.log("Confirm Password:", confirmPassword);
+        res.redirect("/");
+    } else {
+        console.log("Invalid signup attempt");
+        res.redirect("/signup?error=invalid_input");
+    }
 });
 
 // api

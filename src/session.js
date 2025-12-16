@@ -13,11 +13,11 @@ function middleware(req, res, next) {
         const sessionID = req.cookies[SesionName];
         if (Clients.has(sessionID)) {
             req.client = Clients.get(sessionID);
-            console.log("Existing client with session ID:", sessionID);
+            // console.log("Existing client with session ID:", sessionID);
         } else {
             req.client = new Client();
             res.cookie(SesionName, req.client.id, { httpOnly: true });
-            console.log("New client created for invalid session ID:", sessionID);
+            // console.log("New client created for invalid session ID:", sessionID);
         }
     } else {
         // generate a new session ID
@@ -36,4 +36,4 @@ const session = {
     Clients: Clients
 }
 
-export default session;
+module.exports = session;

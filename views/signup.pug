@@ -2,6 +2,7 @@ doctype html
 html
   head
     include includes/head.pug
+    script(src="/js/signup.js") 
     title= title
   body
     include includes/header.pug
@@ -15,22 +16,23 @@ html
                 p.text-center.text-muted.mb-4 Create your account to start playing.
                 if error
                   .alert.alert-danger(role='alert')= error
-                form(action='/signup', method='post', novalidate)
+                form#signupForm(action='/signup', method='post', novalidate, class='needs-validation')
                   .mb-3
                     label.form-label(for='username') Username
-                    input#username.form-control(type='text', name='username', required, autocomplete='username', placeholder='Your Username')
-                  .mb-3
-                    label.form-label(for='email') Email address
-                    input#email.form-control(type='email', name='email', required, autocomplete='email', placeholder='you@example.com')
+                    // Username must be between 3 and 20 chars
+                    input#username.form-control(type='text', name='username', required, autocomplete='username', placeholder='Your Username', minlength='3', maxlength='20')
+                    .invalid-feedback Username must be between 3 and 20 characters.
                   .mb-3
                     label.form-label(for='password') Password
-                    input#password.form-control(type='password', name='password', required, autocomplete='new-password', placeholder='Create a password')
+                    // Password must be between 3 and 20 chars
+                    input#password.form-control(type='password', name='password', required, autocomplete='new-password', placeholder='Create a password', minlength='3', maxlength='20')
+                    .invalid-feedback Password must be between 3 and 20 characters.
                   .mb-4
                     label.form-label(for='confirmPassword') Confirm password
                     input#confirmPassword.form-control(type='password', name='confirmPassword', required, autocomplete='new-password', placeholder='Repeat your password')
+                    .invalid-feedback Passwords do not match.
                   .d-flex.justify-content-between.align-items-center.mb-4
-                    .form-check.mb-0
-                      input#terms.form-check-input(type='checkbox', name='terms', required)
-                      label.form-check-label(for='terms') I agree to the terms
                     a(href='/login').small.text-decoration-none Already have an account?
                   button.btn.btn-primary.w-100(type='submit') Create account
+
+                //- Inline validation script removed; use external JS file instead
