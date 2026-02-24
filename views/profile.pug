@@ -2,7 +2,76 @@ doctype html
 html
   head
     include includes/head.pug
-    title= title
+    title Profil
   body
     include includes/header.pug
-    h1= "profile"
+    main.container.py-4
+      if profile
+        .row
+          .col-md-4.mb-4
+            .card.shadow-sm
+              .card-body.text-center
+                .mb-3
+                  if profile.pfp_path
+                    img.rounded-circle(src=profile.pfp_path, alt='Avatar', width='100', height='100')
+                  else
+                    .bg-secondary.rounded-circle.d-inline-flex.align-items-center.justify-content-center(style='width:100px;height:100px;')
+                      span.text-white.fs-1= profile.username.charAt(0).toUpperCase()
+                h4= profile.username
+                p.text-muted.small Konto od: #{profile.date ? new Date(profile.date).toLocaleDateString('pl-PL') : 'N/A'}
+              .card-body.border-top
+                p.mb-1
+                  strong Opis:
+                p= profile.description || 'Brak opisu'
+                //- Only show edit form if viewing own profile
+                if user.loggedIn && user.username === profile.username
+                  hr
+                  form(action='/profile/update', method='post')
+                    .mb-2
+                      textarea.form-control(name='description', rows='3', placeholder='Twój opis...')= profile.description || ''
+                    button.btn.btn-sm.btn-primary(type='submit') Zapisz opis
+
+          .col-md-8
+            .card.shadow-sm.mb-4
+              .card-header
+                h5.mb-0 Statystyki globalne
+              .card-body
+                .row.text-center
+                  .col-4
+                    h3.text-success= profile.kills || 0
+                    small Kille
+                  .col-4
+                    h3.text-danger= profile.deaths || 0
+                    small Śmierci
+                  .col-4
+                    - const kd = profile.deaths > 0 ? (profile.kills / profile.deaths).toFixed(2) : profile.kills || 0
+                    h3.text-primary= kd
+                    small K/D Ratio
+
+            .card.shadow-sm
+              .card-header
+                h5.mb-0 Historia rozgrywek
+              .card-body
+                if matchStats && matchStats.length > 0
+                  .table-responsive
+                    table.table.table-striped.table-hover.mb-0
+                      thead
+                        tr
+                          th Rozgrywka
+                          th Kille
+                          th Śmierci
+                          th Asysty
+                          th Data
+                      tbody
+                        each stat in matchStats
+                          tr
+                            td
+                              a(href='/matches/' + stat.match)= stat.matchName
+                            td.text-success= stat.kills
+                            td.text-danger= stat.deaths
+                            td= stat.assists
+                            td= stat.date ? new Date(stat.date).toLocaleDateString('pl-PL') : ''
+                else
+                  p.text-muted.mb-0 Brak historii rozgrywek.
+      else
+        .alert.alert-warning Nie znaleziono profilu.

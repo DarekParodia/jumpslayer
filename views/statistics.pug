@@ -2,7 +2,66 @@ doctype html
 html
   head
     include includes/head.pug
-    title= title
+    title Statystyki
   body
     include includes/header.pug
-    h1= "statistics"
+    main.container.py-4
+      h1.mb-4 Statystyki
+
+      .row
+        .col-md-6.mb-4
+          .card.shadow-sm
+            .card-header
+              h5.mb-0 Ranking graczy (Top 20)
+            .card-body
+              if leaderboard && leaderboard.length > 0
+                .table-responsive
+                  table.table.table-striped.table-hover.mb-0
+                    thead
+                      tr
+                        th #
+                        th Gracz
+                        th Kille
+                        th Śmierci
+                        th K/D
+                    tbody
+                      each player, i in leaderboard
+                        tr
+                          td= i + 1
+                          td
+                            a(href='/profile/' + player.username)= player.username
+                          td.text-success= player.kills || 0
+                          td.text-danger= player.deaths || 0
+                          td
+                            - const kd = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills || 0
+                            = kd
+              else
+                p.text-muted.mb-0 Brak danych o graczach.
+
+        .col-md-6.mb-4
+          .card.shadow-sm
+            .card-header
+              h5.mb-0 Ostatnie wyniki rozgrywek
+            .card-body
+              if recentStats && recentStats.length > 0
+                .table-responsive
+                  table.table.table-striped.table-hover.mb-0
+                    thead
+                      tr
+                        th Gracz
+                        th Rozgrywka
+                        th Kille
+                        th Śmierci
+                        th Asysty
+                    tbody
+                      each stat in recentStats
+                        tr
+                          td
+                            a(href='/profile/' + stat.user)= stat.user
+                          td
+                            a(href='/matches/' + stat.match)= stat.matchName
+                          td.text-success= stat.kills
+                          td.text-danger= stat.deaths
+                          td= stat.assists
+              else
+                p.text-muted.mb-0 Brak wyników rozgrywek.

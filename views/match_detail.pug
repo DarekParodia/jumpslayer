@@ -1,0 +1,81 @@
+doctype html
+html
+  head
+    include includes/head.pug
+    title= match.displayName
+  body
+    include includes/header.pug
+    main.container.py-4
+      .d-flex.align-items-center.justify-content-between.mb-4
+        div
+          h1.mb-1= match.displayName
+          p.text-muted.mb-0
+            | Host: 
+            a(href='/profile/' + match.host)= match.host
+            |  · Max graczy: #{match.maxPlayers} · 
+            if match.isPlaying
+              span.badge.bg-success Aktywna
+            else
+              span.badge.bg-secondary Zakończona
+            |  · #{match.date ? new Date(match.date).toLocaleDateString('pl-PL') : ''}
+        if user.loggedIn
+          .d-flex.gap-2
+            if match.isPlaying
+              form(action='/matches/' + match._id + '/end', method='post')
+                button.btn.btn-warning(type='submit') Zakończ
+            form(action='/matches/' + match._id + '/delete', method='post')
+              button.btn.btn-danger(type='submit') Usuń
+
+      .row
+        .col-md-8.mb-4
+          .card.shadow-sm
+            .card-header
+              h5.mb-0 Statystyki rozgrywki
+            .card-body
+              if stats && stats.length > 0
+                .table-responsive
+                  table.table.table-striped.table-hover.mb-0
+                    thead
+                      tr
+                        th #
+                        th Gracz
+                        th Kille
+                        th Śmierci
+                        th Asysty
+                        th K/D
+                    tbody
+                      each stat, i in stats
+                        tr
+                          td= i + 1
+                          td
+                            a(href='/profile/' + stat.user)= stat.user
+                          td.text-success= stat.kills
+                          td.text-danger= stat.deaths
+                          td= stat.assists
+                          td
+                            - const kd = stat.deaths > 0 ? (stat.kills / stat.deaths).toFixed(2) : stat.kills
+                            = kd
+              else
+                p.text-muted.mb-0 Brak statystyk dla tej rozgrywki.
+
+        .col-md-4.mb-4
+          if user.loggedIn
+            .card.shadow-sm
+              .card-header
+                h5.mb-0 Dodaj statystyki
+              .card-body
+                p.small.text-muted Ręczne dodawanie statystyk gracza do tej rozgrywki.
+                form(action='/matches/' + match._id + '/stats', method='post')
+                  .mb-3
+                    label.form-label(for='user') Nazwa gracza
+                    input#user.form-control(type='text', name='user', required, placeholder='Nazwa użytkownika')
+                  .mb-3
+                    label.form-label(for='kills') Kille
+                    input#kills.form-control(type='number', name='kills', value='0', min='0')
+                  .mb-3
+                    label.form-label(for='deaths') Śmierci
+                    input#deaths.form-control(type='number', name='deaths', value='0', min='0')
+                  .mb-3
+                    label.form-label(for='assists') Asysty
+                    input#assists.form-control(type='number', name='assists', value='0', min='0')
+                  button.btn.btn-primary.w-100(type='submit') Dodaj statystyki

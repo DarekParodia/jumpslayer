@@ -2,12 +2,30 @@ doctype html
 html
   head
     include includes/head.pug
-    title= title
+    title Jumpslayer
   body
     include includes/header.pug
-    h1= message
-    p This is a simple Express + Pug example.
-    if user.loggedIn
-      p Welcome back, #{user.username}!
-    else
-      p Please log in or sign up to continue.
+    main.container.py-4
+      .text-center.mb-4
+        h1 Jumpslayer
+        p.lead Wieloosobowa gra strzelankowa
+      if user.loggedIn
+        .row.justify-content-center
+          .col-md-8
+            .card.shadow-sm.mb-3
+              .card-body.text-center
+                h5.card-title Witaj, #{user.username}!
+                p.card-text Gotowy do gry?
+                .d-flex.justify-content-center.gap-3
+                  a.btn.btn-primary(href='/matches') Rozgrywki
+                  a.btn.btn-outline-secondary(href='/profile') Mój profil
+                  a.btn.btn-outline-secondary(href='/statistics') Statystyki
+      else
+        .row.justify-content-center
+          .col-md-8
+            .card.shadow-sm
+              .card-body.text-center
+                p.card-text Zaloguj się lub zarejestruj aby rozpocząć grę.
+                .d-flex.justify-content-center.gap-3
+                  a.btn.btn-primary(href='/login') Zaloguj się
+                  a.btn.btn-outline-primary(href='/signup') Zarejestruj się

@@ -1,0 +1,65 @@
+doctype html
+html
+  head
+    include includes/head.pug
+    title Rozgrywki
+  body
+    include includes/header.pug
+    main.container.py-4
+      h1.mb-4 Rozgrywki
+
+      .row
+        .col-md-8.mb-4
+          .card.shadow-sm
+            .card-header
+              h5.mb-0 Lista rozgrywek
+            .card-body
+              if matches && matches.length > 0
+                .table-responsive
+                  table.table.table-striped.table-hover.mb-0
+                    thead
+                      tr
+                        th Nazwa
+                        th Host
+                        th Max graczy
+                        th Status
+                        th Data
+                        th Akcje
+                    tbody
+                      each match in matches
+                        tr
+                          td
+                            a(href='/matches/' + match._id)= match.displayName
+                          td
+                            a(href='/profile/' + match.host)= match.host
+                          td= match.maxPlayers
+                          td
+                            if match.isPlaying
+                              span.badge.bg-success Aktywna
+                            else
+                              span.badge.bg-secondary Zakończona
+                          td= match.date ? new Date(match.date).toLocaleDateString('pl-PL') : ''
+                          td
+                            a.btn.btn-sm.btn-outline-primary(href='/matches/' + match._id) Szczegóły
+              else
+                p.text-muted.mb-0 Brak rozgrywek.
+
+        .col-md-4.mb-4
+          if user.loggedIn
+            .card.shadow-sm
+              .card-header
+                h5.mb-0 Utwórz rozgrywkę
+              .card-body
+                form(action='/matches/create', method='post')
+                  .mb-3
+                    label.form-label(for='displayName') Nazwa rozgrywki
+                    input#displayName.form-control(type='text', name='displayName', required, placeholder='np. Arena 1', maxlength='50')
+                  .mb-3
+                    label.form-label(for='maxPlayers') Max graczy
+                    input#maxPlayers.form-control(type='number', name='maxPlayers', value='8', min='2', max='32')
+                  button.btn.btn-primary.w-100(type='submit') Utwórz
+          else
+            .card.shadow-sm
+              .card-body.text-center
+                p.text-muted Zaloguj się aby tworzyć rozgrywki.
+                a.btn.btn-primary(href='/login') Zaloguj się

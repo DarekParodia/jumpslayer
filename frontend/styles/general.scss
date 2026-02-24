@@ -29,6 +29,47 @@ body {
     justify-content: center;
     align-items: center;
   }
+
+  main.container {
+    flex: 1;
+  }
+}
+
+// Cards
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  background-color: color.scale($primary-color, $lightness: 85%);
+  border-bottom: 1px solid color.scale($primary-color, $lightness: 70%);
+  border-radius: 12px 12px 0 0 !important;
+}
+
+// Tables
+.table a {
+  color: $primary-color;
+  text-decoration: none;
+
+  &:hover {
+    color: color.scale($primary-color, $lightness: -20%);
+    text-decoration: underline;
+  }
+}
+
+// Badges
+.badge.bg-success {
+  background-color: $secondary-color !important;
+}
+
+.badge.bg-secondary {
+  background-color: #aab2bd !important;
+}
+
+// Chat
+.bg-light {
+  border: 1px solid #eee;
 }
 
 .login-page {

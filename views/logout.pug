@@ -2,7 +2,10 @@ doctype html
 html
   head
     include includes/head.pug
-    title= title
+    title Wylogowano
   body
     include includes/header.pug
-    h1= "logout"
+    main.container.py-4.text-center
+      h1.mb-3 Wylogowano
+      p Zostałeś pomyślnie wylogowany.
+      a.btn.btn-primary(href='/') Strona główna

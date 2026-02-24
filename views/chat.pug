@@ -2,7 +2,35 @@ doctype html
 html
   head
     include includes/head.pug
-    title= title
+    title Chat
   body
     include includes/header.pug
-    h1= "chat"
+    main.container.py-4
+      h1.mb-4 Chat
+
+      .row.justify-content-center
+        .col-md-8
+          .card.shadow-sm
+            .card-header
+              h5.mb-0 Wiadomości publiczne
+            .card-body(style='max-height: 500px; overflow-y: auto;')
+              if messages && messages.length > 0
+                each msg in messages
+                  .mb-2.p-2.rounded.bg-light
+                    .d-flex.justify-content-between.align-items-center
+                      strong
+                        a(href='/profile/' + msg.author)= msg.author
+                      small.text-muted= msg.date ? new Date(msg.date).toLocaleString('pl-PL') : ''
+                    p.mb-0.mt-1= msg.content
+              else
+                p.text-muted.mb-0 Brak wiadomości. Bądź pierwszy!
+            if user.loggedIn
+              .card-footer
+                form(action='/chat/send', method='post')
+                  .input-group
+                    input.form-control(type='text', name='content', placeholder='Napisz wiadomość...', required, maxlength='500')
+                    button.btn.btn-primary(type='submit') Wyślij
+            else
+              .card-footer.text-center.text-muted
+                | Zaloguj się aby pisać wiadomości.
+                a(href='/login')  Zaloguj się

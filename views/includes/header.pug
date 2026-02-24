@@ -4,12 +4,13 @@ mixin button($text, $link)
 header 
   nav
     +button('Home', '/')
-    +button('Statistics', '/statistics')
+    +button('Rozgrywki', '/matches')
+    +button('Statystyki', '/statistics')
     +button('Chat', '/chat')
   nav
     if user.loggedIn
       +button(user.username, '/profile')
-      +button('Logout', '/logout')
+      +button('Wyloguj', '/logout')
     else
-      +button('Login', '/login')
-      +button('Sign Up', '/signup')
+      +button('Zaloguj', '/login')
+      +button('Rejestracja', '/signup')
